@@ -1,33 +1,67 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react'
+import UserTable from './tables/UserTable'
+import AddUserForm from './forms/AddUserForm'
+import EditUserForm from './forms/EditUserForm'
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const usersData = [
+    { id: 1, name: 'Tania', username: 'floppydiskette' },
+    { id: 2, name: 'Craig', username: 'siliconeidolon' },
+    { id: 3, name: 'Ben', username: 'benisphere' },
+  ]
+
+  const [users, setUsers] = useState(usersData)
+  const [editing, setEditing] = useState(false)
+  const initialFormState = { id: null, name: '', username: '' }
+  const [currentUser, setCurrentUser] = useState(initialFormState)
+
+  const editRow = (user) => {
+    setEditing(true)
+
+    setCurrentUser({ id: user.id, name: user.name, username: user.username })
+  }
+
+  const addUser = (user) => {
+    user.id = user.length + 1
+    setUsers([...users, user])
+  }
+  
+  const updateUser = (id, updateUser) => {
+    setEditing(false)
+
+    setUsers(users.map((user) => (user.id === id ? updateUser : user)))
+  }
+
+  const deleteUser = (id) => {
+    setUsers(users.filter((user) => user.id !== id))
+  }
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="container">
+      <h1>CRUD App with Hooks</h1>
+      <div className="flex-row">
+        <div className="flex-large">
+        {editing ? (
+          <div>
+            <h2>Edit user</h2>
+            <EditUserForm
+              setEditing={setEditing}
+              currentUser={currentUser}
+              updateUser={updateUser}
+            />
+          </div>
+        ) : (
+          <div>
+            <h2>Add user</h2>
+            <AddUserForm addUser={addUser} />
+          </div>
+        )}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          The count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+        <div className="flex-large">
+          <h2>View users</h2>
+          <UserTable users={users} editRow={editRow} deleteUser={deleteUser} />
+        </div>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </div>
   )
 }
